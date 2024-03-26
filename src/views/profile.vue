@@ -155,6 +155,7 @@ export default {
 }
 </script>
 
+
 <style scoped>
 .profile-container {
   width: 100%;

@@ -124,7 +124,7 @@ const router = new Router({
   ],
 });
 
-router.beforeEach(async (to, from, next) => {
+ router.beforeEach(async (to, from, next) => {
   if (
     // Make sure the user is authenticated
     !store.state.accessToken &&
@@ -137,35 +137,5 @@ router.beforeEach(async (to, from, next) => {
     // Continue navigation
     next();
   }
-});
+}); 
 export default router;
-/* // Add navigation guard to check if the route requires authentication
-router.beforeEach((to, from, next) => {
-  // Check if the route requires authentication
-  if (to.matched.some(record => record.meta.requiresAuth)) {
-    // Check if the user is authenticated
-    if (!checkIfUserIsAuthenticated()) {
-      // User is not logged in, redirect to login page
-      next({
-        path: '/login',
-        query: { redirect: to.fullPath } // Pass the current route as a query parameter to redirect after login
-      });
-    } else {
-      // User is logged in, proceed to the requested route
-      next();
-    }
-  } else {
-    // If the route doesn't require authentication, proceed as usual
-    next();
-  }
-});
-
-
-// Function to check if the user is authenticated
-function checkIfUserIsAuthenticated() {
-  // Replace this with your actual authentication logic
-  // For example, you can check if there is an access token in the store
-  const accessToken = store.state.accessToken;
-  return !!accessToken; // Return true if the user is authenticated, false otherwise
-}
- */

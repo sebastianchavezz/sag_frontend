@@ -9,12 +9,16 @@
         <form class="create-party-form" @submit.prevent="submitForm">
           <input type="text" v-model="partyName" placeholder="Name Party" class="create-party-textinput input" />
           <input type="text" v-model="occasion" placeholder="occasion" class="create-party-textinput1 input" />
-          <input type="text" v-model="date" placeholder="date" class="create-party-textinput2 input" />
+          <input type="date" v-model="date" placeholder="date" class="create-party-textinput2 input" />
           <textarea placeholder="Description" class="create-party-textarea textarea"></textarea>
           <div v-for="(member, index) in members" :key="index">
             <input type="text" v-model="member.identifier" :placeholder="member.type === 'email' ? 'Friend\'s Email' : 'Friend\'s Username'" class="create-party-textinput input" />
             <button type="button" @click="removeMember(index)" class="button">Remove</button>
           </div>
+          <div>
+         <input type="file" ref="fileInput" @change="handleFileChange" accept="image/*" />
+          <button type="button" @click="openFileInput">Select Image</button>
+        </div>
           <select v-model="inputType" class="input-type-select">
             <option value="email">Email</option>
             <option value="username">Username</option>
@@ -22,7 +26,13 @@
           <button type="button" @click="addMember" class="button">Add Friend</button>
           <button type="submit" class="button">Plan a Party</button>
         </form>
-        <img alt="image" src="https://play.teleporthq.io/static/svg/default-img.svg" class="create-party-image" />
+        <div>
+        <img
+            alt="image"
+            :src="profileImageData"
+            class="create-party-image"
+        />
+        </div>
       </div>
     </div>
   </div>
@@ -53,27 +63,51 @@ export default {
       occasion: "",
       date: null,
       inputType: 'email', // Default input type
-      members: [{ identifier: "", type: 'email' }] // Default member type
+      members: [{ identifier: "", type: 'email' }], // Default member type
+      profileImageData : ''
     };
   },
   methods: {
-    async submitForm() {
+    openFileInput() {
+      this.$refs.fileInput.click(); // Trigger the file input click event
+    },
+    async handleFileChange(event) {
+      const file = event.target.files[0]; // Get the selected file
+      if (!file) return; // No file selected
+      const reader = new FileReader();
+      reader.onload = async () => {
+      // Convert the selected file to a Blob object
+        this.profileImageData= new Blob([file], { type: "image/jpeg" });
+        
+      };
+      // Set the profileImageData property to the Blob object
+      reader.readAsArrayBuffer(file);
+    },
+    async submitForm() { 
       try {
-        if(!this.accessToken){
+        if (!this.accessToken) {
           this.$router.push('/login');
+          return;
         }
-        // Retrieve user ID
-        const userId = getCurrentUserId();
-        const newParty = {
-          userId: this.userId,
-          occasion: this.occasion,
-          date: this.date,
-          users: this.members.map(member => ({ [member.type]: member.identifier })) // Map to identifier type
-        };
-        console.log('data: ', newParty);
-        const response = await axios.post('http://localhost:3001/add-party', newParty, {
-        headers: {
+
+        // Create form data
+        const formData = new FormData();
+        formData.append('userId', this.userId);
+        formData.append('occasion', this.occasion);
+        formData.append('date', this.date);
+        formData.append('image', this.profileImageData); // Append the Blob
+
+        // Append member data
+        this.members.forEach((member, index) => {
+          formData.append(`members[${index}][type]`, member.type);
+          formData.append(`members[${index}][identifier]`, member.identifier);
+        });
+
+        // Send the form data to the backend
+        const response = await axios.post('http://localhost:3001/add-party', formData, {
+          headers: {
             Authorization: `Bearer ${this.accessToken}`,
+            'Content-Type': 'multipart/form-data', // Set content type as multipart/form-data
           },
         });
 
@@ -95,7 +129,8 @@ export default {
     },
     removeMember(index) {
       this.members.splice(index, 1);
-    }
+    },
+
   },
 };
 </script>
