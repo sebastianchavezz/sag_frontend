@@ -14,12 +14,13 @@
         <div class="profile-product-placement">
           <img
             alt="image"
-            src="https://play.teleporthq.io/static/svg/default-img.svg"
+            :src="profileImageData"
             class="profile-image"
           />
         </div>
         <div class="profile-container3">
-          <button type="button" class="button">Change Pic</button>
+          <input type="file" ref="fileInput" @change="handleFileChange" accept="image/*" style="display: none" />
+          <button type="button" class="button" @click="openFileInput">Change Pic</button>
         </div>
         <div class="profile-container4">
           <h1 class="profile-text1">
@@ -50,6 +51,7 @@ import AppHeader from '../components/header'
 import ProductCard1 from '../components/product-card1'
 import LeftCanvas from '../components/left-canvas'
 import RightCanvas from '../components/right-canvas'
+import axios from 'axios'
 import {mapState} from 'vuex'
 
 export default {
@@ -61,8 +63,94 @@ export default {
     LeftCanvas,
     RightCanvas,
   },
+  data(){
+    return{
+      profileImageData : ''
+    };
+  },
+  created() {
+    // Fetch the profile image of the user when the component is created
+    this.fetchProfileImage();
+  },
   computed:{
     ...mapState(['userId','accessToken','name', 'lastname']),
+  },
+  methods: {
+    async fetchProfileImage() {
+      try {
+        // Make an API call to fetch the profile image binary data from the backend
+        const response = await axios.get(`http://localhost:3001/profile-image/${this.userId}`, {
+          headers: {
+            Authorization: `Bearer ${this.accessToken}` // Include access token if required
+          },
+          responseType: 'arraybuffer' // Specify responseType as 'arraybuffer' to receive binary data
+        });
+        console.log('The pic is updated', response.data);
+        // Create a blob from the binary data
+        const blob = new Blob([response.data], { type: 'image/jpeg' }); // Adjust type accordingly
+        // Create an object URL from the blob
+        this.profileImageData = URL.createObjectURL(blob);
+      } catch (error) {
+        console.error('Error fetching profile image:', error);
+        // Handle error
+      }
+    },
+    
+    openFileInput() {
+      this.$refs.fileInput.click(); // Trigger the file input click event
+    },
+    async handleFileChange(event) {
+      const file = event.target.files[0]; // Get the selected file
+      if (!file) return; // No file selected
+
+      // Convert the selected file to binary data (ArrayBuffer)
+      const reader = new FileReader();
+      reader.onload = async () => {
+        const binaryData = reader.result; // Binary data (ArrayBuffer)
+        
+        // Send the binary data to the backend
+        try {
+          await this.sendImageToBackend(binaryData);
+          console.log('Image uploaded successfully');
+          // Optionally, update the profile image on the frontend
+        } catch (error) {
+          console.error('Error uploading image:', error);
+          // Handle error
+        }
+      };
+      reader.readAsArrayBuffer(file);
+    },
+    async sendImageToBackend(binaryData) {
+      try {
+        // Create a FormData object
+        const formData = new FormData();
+
+        // Create a Blob object from the binary data  
+        const blob = new Blob([binaryData], { type: "image/jpeg" });
+
+        // Append the Blob to the FormData object
+        formData.append("image", blob, "image.jpg");
+
+        // Send a POST request to your backend endpoint with the FormData
+        const response = await axios.post(
+          `http://localhost:3001/upload-image/${this.userId}`,
+          formData,
+          {
+            headers: {
+              'Content-Type': 'multipart/form-data', // Set content type as multipart/form-data
+              Authorization: `Bearer ${this.accessToken}` // Include access token if required
+            }
+          }
+        );
+
+        console.log('Image uploaded successfully');
+        return response.data;
+      } catch (error) {
+        console.error('Error uploading image:', error);
+        // Handle error
+        throw error;
+      }
+    }
   }
 }
 </script>

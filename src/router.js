@@ -124,6 +124,20 @@ const router = new Router({
   ],
 });
 
+router.beforeEach(async (to, from, next) => {
+  if (
+    // Make sure the user is authenticated
+    !store.state.accessToken &&
+    // Avoid an infinite redirect
+    (to.name !== 'Login' && to.name !== 'Register' && to.name !== 'About')
+  ) {
+    // Redirect the user to the login page
+    next({ name: 'Login' });
+  } else {
+    // Continue navigation
+    next();
+  }
+});
 export default router;
 /* // Add navigation guard to check if the route requires authentication
 router.beforeEach((to, from, next) => {

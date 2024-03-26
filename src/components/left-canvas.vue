@@ -120,7 +120,7 @@ export default {
     },
     r_toMessages(){
       if(this.$route.path != '/messages'){
-        this.$router.path('/messages');
+        this.$router.push('/messages');
       }
     }
   }

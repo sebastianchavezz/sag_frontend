@@ -6,45 +6,35 @@
       <right-canvas rootClassName="right-canvas-root-class-name4"></right-canvas>
       <div class="create-party-container1">
         <div class="create-party-container2"><h1>Create a Party</h1></div>
-        <form class="create-party-form">
-          <input
-            type="text"
-            placeholder="Name Party"
-            class="create-party-textinput input"
-          />
-          <input
-            type="text"
-            placeholder="occasion"
-            class="create-party-textinput1 input"
-          />
-          <input
-            type="text"
-            placeholder="date"
-            enctype="Dateµ"
-            class="create-party-textinput2 input"
-          />
-          <textarea
-            placeholder="Description"
-            class="create-party-textarea textarea"
-          ></textarea>
-          <add-friend></add-friend>
-          <button type="button" class="button">Plan a Party</button>
+        <form class="create-party-form" @submit.prevent="submitForm">
+          <input type="text" v-model="partyName" placeholder="Name Party" class="create-party-textinput input" />
+          <input type="text" v-model="occasion" placeholder="occasion" class="create-party-textinput1 input" />
+          <input type="text" v-model="date" placeholder="date" class="create-party-textinput2 input" />
+          <textarea placeholder="Description" class="create-party-textarea textarea"></textarea>
+          <div v-for="(member, index) in members" :key="index">
+            <input type="text" v-model="member.identifier" :placeholder="member.type === 'email' ? 'Friend\'s Email' : 'Friend\'s Username'" class="create-party-textinput input" />
+            <button type="button" @click="removeMember(index)" class="button">Remove</button>
+          </div>
+          <select v-model="inputType" class="input-type-select">
+            <option value="email">Email</option>
+            <option value="username">Username</option>
+          </select>
+          <button type="button" @click="addMember" class="button">Add Friend</button>
+          <button type="submit" class="button">Plan a Party</button>
         </form>
-        <img
-          alt="image"
-          src="https://play.teleporthq.io/static/svg/default-img.svg"
-          class="create-party-image"
-        />
+        <img alt="image" src="https://play.teleporthq.io/static/svg/default-img.svg" class="create-party-image" />
       </div>
     </div>
   </div>
 </template>
 
 <script>
+import axios from 'axios';
+import { getCurrentUserId, userIsLoggedIn } from '@/auth/auth';
 import AppHeader from '../components/header'
 import LeftCanvas from '../components/left-canvas'
 import RightCanvas from '../components/right-canvas'
-import AddFriend from '../components/add-friend'
+import { mapState } from 'vuex';
 
 export default {
   name: 'CreateParty',
@@ -53,18 +43,61 @@ export default {
     AppHeader,
     LeftCanvas,
     RightCanvas,
-    AddFriend,
   },
-  metaInfo: {
-    title: 'CreateParty - Respectful Winged Tarsier',
-    meta: [
-      {
-        property: 'og:title',
-        content: 'CreateParty - Respectful Winged Tarsier',
-      },
-    ],
+  computed: {
+    ...mapState(['userId', 'accessToken', 'name']),
   },
-}
+  data() {
+    return {
+      partyName: "",
+      occasion: "",
+      date: null,
+      inputType: 'email', // Default input type
+      members: [{ identifier: "", type: 'email' }] // Default member type
+    };
+  },
+  methods: {
+    async submitForm() {
+      try {
+        if(!this.accessToken){
+          this.$router.push('/login');
+        }
+        // Retrieve user ID
+        const userId = getCurrentUserId();
+        const newParty = {
+          userId: this.userId,
+          occasion: this.occasion,
+          date: this.date,
+          users: this.members.map(member => ({ [member.type]: member.identifier })) // Map to identifier type
+        };
+        console.log('data: ', newParty);
+        const response = await axios.post('http://localhost:3001/add-party', newParty, {
+        headers: {
+            Authorization: `Bearer ${this.accessToken}`,
+          },
+        });
+
+        console.log('Party added successfully:', response.data);
+        //this.$emit('party-added', response.data);
+      } catch (error) {
+        console.error('Error adding party:', error.message);
+        // Handle error
+      }
+
+      // Clear the form fields after submission
+      this.partyName = "";
+      this.occasion = "";
+      this.date = null;
+      this.members = [{ identifier: "", type: this.inputType }];
+    },
+    addMember() {
+      this.members.push({ identifier: "", type: this.inputType });
+    },
+    removeMember(index) {
+      this.members.splice(index, 1);
+    }
+  },
+};
 </script>
 
 <style scoped>
