@@ -67,8 +67,9 @@ const router = new Router({
     },
     {
       name: 'ViewParty',
-      path: '/view-party',
+      path: '/view-party/:partyid',
       component: ViewParty,
+      props: true,
     },
     {
       name: 'GroupChat',

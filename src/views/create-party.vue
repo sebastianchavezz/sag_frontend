@@ -93,6 +93,7 @@ export default {
         // Create form data
         const formData = new FormData();
         formData.append('userId', this.userId);
+        formData.append('name', this.partyName);
         formData.append('occasion', this.occasion);
         formData.append('date', this.date);
         formData.append('image', this.profileImageData); // Append the Blob
@@ -121,6 +122,7 @@ export default {
       // Clear the form fields after submission
       this.partyName = "";
       this.occasion = "";
+      this.partyName = "";
       this.date = null;
       this.members = [{ identifier: "", type: this.inputType }];
     },

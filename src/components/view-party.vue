@@ -1,16 +1,13 @@
 <template>
   <div class="view-party-container" v-bind:class="rootClassName">
-    <textarea
-      :placeholder="textareaPlaceholder"
-      class="view-party-textarea textarea"
-    ></textarea>
-    <button type="button" class="view-party-button button">
-      <span>
-        <span>view</span>
-        <br />
-        <br />
-      </span>
-    </button>
+    <div v-for="(party, index) in parties" :key="index" class="party-item">
+      <div>
+        <p>Name: {{ party.name }}</p>
+        <p>Occasion: {{ party.occasion }}</p>
+        <p>End Date: {{ party.dateend }}</p>
+      </div>
+      <button @click="viewParty(party)" class="view-party-button">View Party</button>
+    </div>
   </div>
 </template>
 
@@ -18,40 +15,44 @@
 export default {
   name: 'ViewParty',
   props: {
-    textareaPlaceholder: {
-      type: String,
-      default: 'placeholder',
-    },
     rootClassName: String,
+    parties: Array
   },
+  methods: {
+    viewParty(party) {
+      // Handle the logic for viewing the party
+      console.log('Viewing party:', party);
+
+      // Navigate to the view-party/:partyid route
+      this.$router.push({ name: 'ViewParty', params: { partyid: party.id } });
+    }
+  }
 }
 </script>
 
 <style scoped>
 .view-party-container {
-  flex: 0 0 auto;
   width: 100%;
-  height: 100px;
+  height: 100%;
   display: flex;
-  position: relative;
-  align-self: center;
+  flex-direction: column;
   align-items: center;
-  flex-direction: row;
-  justify-content: flex-start;
+  justify-content: center; /* Center vertically and horizontally */
 }
-.view-party-textarea {
-  width: 90%;
-  height: 100%;
+
+.party-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
 }
+
 .view-party-button {
-  width: 10%;
-  height: 100%;
-}
-.view-party-root-class-name {
-  top: 130px;
-  left: 0px;
-  right: 0px;
-  margin: auto;
-  position: absolute;
+  padding: 5px 10px;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
 }
 </style>

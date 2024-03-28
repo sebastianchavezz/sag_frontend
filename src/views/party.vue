@@ -6,7 +6,7 @@
       <right-canvas rootClassName="right-canvas-root-class-name3"></right-canvas>
       <div class="party-container1">
         <button @click="addParty" type="button" class="party-button button">Add Party</button>
-        <view-party rootClassName="view-party-root-class-name"></view-party>
+        <view-party rootClassName="view-party-root-class-name" :parties="parties"></view-party>
       </div>
     </div>
   </div>
@@ -17,32 +17,47 @@ import AppHeader from '../components/header'
 import LeftCanvas from '../components/left-canvas'
 import RightCanvas from '../components/right-canvas'
 import ViewParty from '../components/view-party'
+import axios from 'axios'
+import { mapState } from 'vuex'
 
 export default {
   name: 'Party',
-  props: {},
   components: {
     AppHeader,
     LeftCanvas,
     RightCanvas,
     ViewParty,
   },
-  metaInfo: {
-    title: 'Party - Respectful Winged Tarsier',
-    meta: [
-      {
-        property: 'og:title',
-        content: 'Party - Respectful Winged Tarsier',
-      },
-    ],
+  data() {
+    return {
+      parties: []
+    }
+  },
+  computed:{
+    ...mapState(['userId','accessToken','name', 'lastname']),
+  },
+  mounted() {
+    this.fetchPartyData();
   },
   methods:{
     addParty(){
       this.$router.push("/create-party");
+    },
+    async fetchPartyData() {
+      // Assuming you have axios or similar HTTP client installed
+      await axios.get(`http://localhost:3001/getParty-by-user/${this.userId}`)
+        .then(response => {
+          this.parties = response.data;
+          console.log('parties: ', this.parties);
+        })
+        .catch(error => {
+          console.error('Error fetching party data:', error);
+        });
     }
   }
 }
 </script>
+
 
 <style scoped>
 .party-container {
