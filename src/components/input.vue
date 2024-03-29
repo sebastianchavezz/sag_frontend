@@ -4,6 +4,8 @@
       type="text"
       :placeholder="inputPlaceholder"
       class="input-input input"
+      v-model="searchQuery"
+      @input="handleSearch"
     />
   </div>
 </template>
@@ -16,6 +18,16 @@ export default {
     inputPlaceholder: {
       type: String,
       default: 'Search',
+    },
+  },
+  data() {
+    return {
+      searchQuery: '', // Initialize search query
+    };
+  },
+  methods: {
+    handleSearch() {
+      this.$emit('search', this.searchQuery); // Emit search event with search query
     },
   },
 }

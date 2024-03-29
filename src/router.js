@@ -10,7 +10,7 @@ import About from './views/about'
 import Party from './views/party'
 import Marketplace from './views/marketplace'
 import CreateParty from './views/create-party'
-import ViewParty from './views/view-party'
+import ViewPartyDetails from './views/view-party-details'
 import GroupChat from './views/group-chat'
 import ViewPresent from './views/view-present'
 import ProductPage from './views/product-page'
@@ -21,6 +21,7 @@ import AddUserToParty from './views/add-user-to-party'
 import Messages from './views/messages'
 import Page from './views/page'
 import NotFound from './views/not-found'
+import UserProfile from './views/user-profile.vue'
 import './style.css'
 
 Vue.use(Router)
@@ -66,10 +67,9 @@ const router = new Router({
       component: CreateParty,
     },
     {
-      name: 'ViewParty',
-      path: '/view-party/:partyid',
-      component: ViewParty,
-      props: true,
+      name: 'ViewPartyDetails',
+      path: '/view-party-details/:partyid',
+      component: ViewPartyDetails,
     },
     {
       name: 'GroupChat',
@@ -90,6 +90,11 @@ const router = new Router({
       name: 'PrivateMessaging',
       path: '/private-messaging',
       component: PrivateMessaging,
+    },
+    {
+      name: 'UserProfile',
+      path: '/user-profile/:userid',
+      component: UserProfile,
     },
     {
       name: 'Profile',

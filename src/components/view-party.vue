@@ -22,12 +22,12 @@ export default {
     viewParty(party) {
       // Handle the logic for viewing the party
       console.log('Viewing party:', party);
-
+      console.log('partyid: ', party.partyid);
       // Navigate to the view-party/:partyid route
-      this.$router.push({ name: 'ViewParty', params: { partyid: party.id } });
+      this.$router.push({ name: 'ViewPartyDetails', params: { partyid: party.partyid } });
     }
   }
-}
+  }
 </script>
 
 <style scoped>
