@@ -1,16 +1,18 @@
 <template>
   <div class="right-canvas-right-canvas" v-bind:class="rootClassName">
     <h3 class="right-canvas-text">{{ heading }}</h3>
-    <app-messenger rootClassName="messenger-root-class-name4"></app-messenger>
-    <app-messenger rootClassName="messenger-root-class-name"></app-messenger>
-    <app-messenger rootClassName="messenger-root-class-name1"></app-messenger>
-    <app-messenger rootClassName="messenger-root-class-name2"></app-messenger>
-    <app-messenger rootClassName="messenger-root-class-name3"></app-messenger>
+    
+    <div v-for="(request, index) in friendshipRequests" :key="index">
+      <p>{{ request.username }}</p>
+      <button @click="acceptFriendRequest(request.id, index)">Accept</button>
+      <button @click="declineFriendRequest(request.id, index)">Decline</button>
+    </div>
   </div>
 </template>
 
 <script>
-import AppMessenger from './messenger'
+import axios from 'axios';
+import { mapState } from 'vuex';
 
 export default {
   name: 'RightCanvas',
@@ -18,14 +20,64 @@ export default {
     rootClassName: String,
     heading: {
       type: String,
-      default: 'Active friends',
+      default: 'Notifications',
     },
   },
-  components: {
-    AppMessenger,
+  data() {
+    return {
+      friendshipRequests: []
+    };
+  },  
+  created() {
+    this.fetchFriendshipRequest();
   },
+  computed: {
+    ...mapState(['userId', 'accessToken', 'name', 'lastname']),
+  },
+  methods: {
+    async fetchFriendshipRequest() {
+      try {
+        const response = await axios.get(`http://localhost:3001/get-all-friendship-request/${this.userId}`);
+        this.friendshipRequests = response.data.map(user => ({
+          username: user.requester_Username,
+          id: user.requester_id,
+          date: user.createdAt,
+          status: user.status
+        }));
+      } catch(error) {
+        console.error('Error fetching friendship requests:', error);
+      }
+    },
+    async acceptFriendRequest(requesterId, index) {
+      try {
+        const data = {
+          other_user: requesterId,
+          status: 'accepted'
+        };
+        await axios.post(`http://localhost:3001/status-of-friendship/${this.userId}`, data);
+        // Update UI
+        this.friendshipRequests.splice(index, 1); // Remove the accepted request from the array
+      } catch(error) {
+        console.error('Error accepting friend request:', error);
+      }
+    },
+    async declineFriendRequest(requesterId, index) {
+      try {
+        const data = {
+          other_user: requesterId,
+          status: 'decline'
+        };
+        await axios.post(`http://localhost:3001/status-of-friendship/${this.userId}`, data);
+        // Update UI
+        this.friendshipRequests.splice(index, 1); // Remove the declined request from the array
+      } catch(error) {
+        console.error('Error declining friend request:', error);
+      }
+    }
+  }
 }
 </script>
+
 
 <style scoped>
 .right-canvas-right-canvas {

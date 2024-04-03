@@ -107,9 +107,6 @@ export default {
     }
   },
   async mounted() {
-    console.log("userid: ", this.userId);
-    console.log("token: ", this.accessToken);
-    console.log("name: ",this.name );
     if(this.userId && this.accessToken){
       try {
         // Fetch user data using stored userId and token for verification
@@ -120,7 +117,6 @@ export default {
             Authorization: `Bearer ${this.accessToken}`,
           },
         });
-        console.log('response: ',response.data)
 
         this.user = response.data.naam; // Assuming the response contains user data
         //store the email and lastname in store vuex

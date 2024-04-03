@@ -82,7 +82,7 @@ export default {
     },
     visitUserProfile(userid) {
       // Navigate to the user's profile page using the userid
-      this.$router.push({name: 'UserProfile', params: {userid: userid}});
+      this.$router.push({name: 'UserProfile', params: {other_userid: userid}});
     },
   },
 }

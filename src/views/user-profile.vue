@@ -7,7 +7,7 @@
             <h1 class="profile-text">{{ this.name }} Profile</h1>
           </div>
           <div class="profile-container2">
-            <button type="button" class="button">Add Friend</button>
+            <button type="button" @click="sendFriendRequest" class="button">Add Friend</button>
             <button type="button" class="button">Message</button>
             <button type="button" class="button">Add To Party</button>
           </div>
@@ -48,6 +48,7 @@
   import LeftCanvas from '../components/left-canvas'
   import RightCanvas from '../components/right-canvas'
   import axios from 'axios'
+  import { mapState } from 'vuex'
   
   export default {
     name: 'UserProfile',
@@ -60,22 +61,39 @@
     },
     data() {
       return {
-        userid: null,
+        other_userid: null,
         name: '',
         profileImageData: '',
         user: {} // Initialize user object to store user data
       };
     },
     mounted() {
-      this.userid = this.$route.params.userid;
+      this.other_userid = this.$route.params.other_userid;
       this.fetchUserData(); // Fetch user data when the component is mounted
       this.fetchProfileImage();
     },
+    computed: {
+      ...mapState(['userId', 'accessToken', 'name', 'lastname']),
+    },
     methods: {
+      async sendFriendRequest(){
+        try{
+          const data = {
+            other_user : this.other_userid
+          }
+          console.log('USERID: ', this.userId)
+          await axios.post(`http://localhost:3001/request-friendship/${this.userId}`, data);
+          console.log('REQUEST SENT');
+        }catch(error){
+          console.error('Error sending request: ', error);
+        }
+      },  
+
       async fetchUserData() {
         try {
-          // Make an API call to fetch user data using the userid
-          const response = await axios.get(`http://localhost:3001/get-profile/${this.userid}`);
+          // Make an API call to fetch user data using the other_userid
+          console.log('OTHER PROFILE ID: ', this.other_userid);
+          const response = await axios.get(`http://localhost:3001/get-profile/${this.other_userid}`);
           this.user = response.data; // Store the user data in the user object
             this.name = response.data.naam;
         } catch (error) {
@@ -87,7 +105,7 @@
         console.log('FETCHING IMAGE!!');
         try {
           // Make an API call to fetch the profile image binary data from the backend
-          const response = await axios.get(`http://localhost:3001/otherprofile-image/${this.userid}`, {
+          const response = await axios.get(`http://localhost:3001/otherprofile-image/${this.other_userid}`, {
             headers: {
               Authorization: `Bearer ${this.accessToken}` // Include access token if required
             },
@@ -105,60 +123,7 @@
     }
   }
   </script>
-  
-  import AppHeader from '../components/header'
-  import ProductCard1 from '../components/product-card1'
-  import LeftCanvas from '../components/left-canvas'
-  import RightCanvas from '../components/right-canvas'
-  import axios from 'axios'
-  
-  export default {
-    name: 'UserProfile',
-    props: {},
-    components: {
-      AppHeader,
-      ProductCard1,
-      LeftCanvas,
-      RightCanvas,
-    },
-    data(){
-      return{
-        userid : null,
-        profileImageData : ''
-      };
-    },
-    mounted(){
-        this.userid = this.$route.params.userid;
-    },  
-    created() {
-      // Fetch the profile image of the user when the component is created
-      this.fetchProfileImage();
-    },
-    methods: {
-      async fetchProfileImage() {
-        try {
-          // Make an API call to fetch the profile image binary data from the backend
-          const response = await axios.get(`http://localhost:3001/profile-image/${this.userid}`, {
-            headers: {
-              Authorization: `Bearer ${this.accessToken}` // Include access token if required
-            },
-            responseType: 'arraybuffer' // Specify responseType as 'arraybuffer' to receive binary data
-          });
-          console.log('The pic is updated', response.data);
-          // Create a blob from the binary data
-          const blob = new Blob([response.data], { type: 'image/jpeg' }); // Adjust type accordingly
-          // Create an object URL from the blob
-          this.profileImageData = URL.createObjectURL(blob);
-        } catch (error) {
-          console.error('Error fetching profile image:', error);
-          // Handle error
-        }
-      },
-    }
-  }
-  </script>
-  
-  
+
   <style scoped>
   .profile-container {
     width: 100%;

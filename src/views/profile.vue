@@ -6,11 +6,6 @@
         <div class="profile-container1">
           <h1 class="profile-text">{{ this.name }} Profile</h1>
         </div>
-        <div class="profile-container2">
-          <button type="button" class="button">Add Friend</button>
-          <button type="button" class="button">Message</button>
-          <button type="button" class="button">Add To Party</button>
-        </div>
         <div class="profile-product-placement">
           <img
             alt="image"
