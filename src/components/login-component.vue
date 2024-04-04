@@ -139,4 +139,19 @@ export default {
   height: 50%;
   position: static;
 }
+button[type="submit"] {
+  cursor: pointer;
+  background-color: blue;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 12px 24px; /* Adjust padding as needed */
+  margin-top: 16px; /* Added margin top for spacing */
+  font-size: 16px;
+  transition: background-color 0.3s;
+}
+
+button[type="submit"]:hover {
+  background-color: darkblue;
+}
 </style>

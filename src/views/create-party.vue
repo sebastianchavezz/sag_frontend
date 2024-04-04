@@ -62,8 +62,8 @@ export default {
       occasion: '',
       date: null,
       description: '',
-      inputType: 'email', // Default input type
-      members: [{ identifier: '', type: 'email', filteredFriends: [] }], // Default member type with filtered friends array
+      inputType: 'username', // Default input type
+      members: [{ identifier: '', type: 'username', filteredFriends: [] }], // Default member type with filtered friends array
       profileImageData: '',
       friends: [], // Array to store user's friends
     };
@@ -214,7 +214,7 @@ export default {
   right: 0px;
   width: 98%;
   bottom: 56px;
-  height: 378px;
+  height: auto;
   margin: var(--dl-space-space-halfunit);
   display: flex;
   position: absolute;
@@ -239,23 +239,25 @@ export default {
   left: 0px;
   right: 0px;
   width: 80%;
-  height: 352px;
+  height: auto;
   margin: auto;
   position: absolute;
   object-fit: cover;
 }
-@media(max-width: 1600px) {
-  .create-party-main-canvas {
-    width: 100%;
-  }
-  .create-party-container1 {
-    align-items: center;
-    flex-direction: column;
-    justify-content: flex-start;
-  }
-  .create-party-image {
-    width: 684px;
-    height: 355px;
-  }
+.button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  cursor: pointer;
+  border-radius: 5px;
+}
+.button:hover {
+  background-color: #0056b3;
 }
 </style>

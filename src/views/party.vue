@@ -94,13 +94,20 @@ export default {
   justify-content: center;
 }
 .party-button {
-  top: 0px;
-  left: 0px;
-  right: 0px;
-  width: 272px;
-  height: 64px;
-  margin: auto;
-  position: absolute;
+  background-color: black;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  cursor: pointer;
+  border-radius: 5px;
+}
+.party-button:hover {
+  background-color: #333;
 }
 @media(max-width: 1600px) {
   .party-main-canvas {

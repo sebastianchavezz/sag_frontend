@@ -1,16 +1,9 @@
 <template>
   <header data-role="Header" class="header-header" v-bind:class="rootClassName">
     <div @click="redirectToHome" class="header-nav">
-      <h1 class="header-text">{{ heading }}</h1>
+      <button class="logo-button">{{ heading }}</button>
     </div>
-    <img @click="redirectToProfile" :alt="imageAlt" :src="imageSrc" class="header-image" />
-    <div data-role="MobileMenu" class="header-mobile-menu">
-      <div class="header-nav1">
-        <div class="header-container">
-          <img :alt="imageAlt1" :src="imageSrc1" class="header-image1" />
-        </div>
-      </div>
-    </div>
+    <div data-role="MobileMenu" class="header-mobile-menu"></div>
     <app-input rootClassName="input-root-class-name" @search="handleSearch"></app-input>
     <div class="search-results">
       <ul v-if="searchResults.length">
@@ -20,6 +13,7 @@
       </ul>
       <p v-else>No users found.</p>
     </div>
+    <button @click="redirectToProfile" class="go-to-profile-button">Go to Profile</button>
   </header>
 </template>
 
@@ -30,28 +24,11 @@ import axios from 'axios';
 export default {
   name: 'Header',
   props: {
-    imageSrc: {
-      type: String,
-      default: 'https://play.teleporthq.io/static/svg/default-img.svg',
-    },
     heading: {
       type: String,
       default: 'Share A Gift',
     },
-    imageAlt: {
-      type: String,
-      default: 'image',
-    },
     rootClassName: String,
-    imageAlt1: {
-      type: String,
-      default: 'image',
-    },
-    imageSrc1: {
-      type: String,
-      default:
-        'https://presentation-website-assets.teleporthq.io/logos/logo.png',
-    },
   },
   components: {
     AppInput,
@@ -109,155 +86,55 @@ export default {
 .header-nav {
   display: flex;
 }
-.header-text {
+.logo-button {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font-size: 24px;
   color: var(--dl-color-gray-black);
 }
-.header-icon-group {
-  top: 30px;
-  right: 50px;
-  width: 281px;
-  height: 45px;
-  margin: auto;
+.logo-button:focus {
+  outline: none;
+}
+.search-results {
   position: absolute;
-  align-self: center;
-  border-color: var(--dl-color-gray-black);
-  border-width: 0px;
-  border-radius: var(--dl-radius-radius-radius4);
-}
-.header-icon {
-  left: 115px;
-  width: 36px;
-  bottom: 4px;
-  height: 36px;
-  position: absolute;
-}
-.header-image {
-  top: 0px;
-  right: 0px;
-  width: var(--dl-size-size-small);
-  bottom: 0px;
-  height: var(--dl-size-size-small);
-  position: absolute;
-  margin-top: auto;
-  object-fit: cover;
-  margin-left: auto;
-  margin-right: var(--dl-space-space-twounits);
-  border-radius: 50px;
-  margin-bottom: auto;
-}
-.header-icon02 {
-  width: 36px;
-  height: 36px;
-  margin-top: var(--dl-space-space-halfunit);
-  margin-left: var(--dl-space-space-twounits);
-  margin-right: var(--dl-space-space-twounits);
-  margin-bottom: var(--dl-space-space-halfunit);
-}
-.header-burger-menu {
-  display: none;
-}
-.header-icon04 {
-  width: var(--dl-size-size-xsmall);
-  height: var(--dl-size-size-xsmall);
-  display: none;
-}
-.header-mobile-menu {
-  top: 0px;
-  left: 0px;
-  width: 100%;
-  height: 100vh;
-  display: none;
-  padding: 32px;
-  z-index: 100;
-  position: absolute;
-  flex-direction: column;
-  justify-content: space-between;
+  top: calc(100% + 5px);
+  width: calc(100% - 10px);
   background-color: #fff;
-}
-.header-nav1 {
-  display: flex;
-  align-items: flex-start;
-  flex-direction: column;
-}
-.header-container {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  margin-bottom: var(--dl-space-space-threeunits);
-  justify-content: space-between;
-}
-.header-image1 {
-  height: 2rem;
-}
-.header-close-mobile-menu {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.header-icon06 {
-  width: var(--dl-size-size-xsmall);
-  height: var(--dl-size-size-xsmall);
-}
-.header-icon08 {
-  width: var(--dl-size-size-xsmall);
-  height: var(--dl-size-size-xsmall);
-  margin-right: var(--dl-space-space-twounits);
-}
-.header-icon10 {
-  width: var(--dl-size-size-xsmall);
-  height: var(--dl-size-size-xsmall);
-  margin-right: var(--dl-space-space-twounits);
-}
-.header-icon12 {
-  width: var(--dl-size-size-xsmall);
-  height: var(--dl-size-size-xsmall);
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
 }
 
-.header-root-class-name {
-  align-self: center;
+.search-results ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
 }
-@media(max-width: 1600px) {
-  .header-root-class-name1 {
-    align-self: center;
-  }
-  .header-root-class-name6 {
-    align-self: center;
-  }
-  .header-root-class-name7 {
-    align-self: center;
-  }
-  .header-root-class-name9 {
-    align-self: center;
-  }
+
+.search-results li {
+  padding: 8px;
+  border-bottom: 1px solid #eee;
 }
-@media(max-width: 991px) {
-  .header-icon04 {
-    display: flex;
-  }
+
+.search-results li:last-child {
+  border-bottom: none;
 }
-@media(max-width: 767px) {
-  .header-header {
-    padding-left: var(--dl-space-space-twounits);
-    padding-right: var(--dl-space-space-twounits);
-  }
-  .header-nav {
-    display: none;
-  }
-  .header-burger-menu {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
+
+.go-to-profile-button {
+  cursor: pointer;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 16px;
+  transition: background-color 0.3s;
 }
-@media(max-width: 479px) {
-  .header-header {
-    padding: var(--dl-space-space-unit);
-  }
-  .header-icon-group {
-    display: none;
-  }
-  .header-mobile-menu {
-    padding: 16px;
-  }
+
+.go-to-profile-button:hover {
+  background-color: #0056b3;
 }
+
 </style>

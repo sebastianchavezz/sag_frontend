@@ -9,74 +9,54 @@
           <h1>Party: {{ partyData.name }}</h1>
         </div>
         <form class="view-party-form">
-          <input
-            type="text"
-            placeholder="Name Party"
-            class="view-party-textinput input"
-            v-model="partyData.name"
-          />
-          <input
-            type="text"
-            placeholder="Occasion"
-            class="view-party-textinput1 input"
-            v-model="partyData.occasion"
-          />
-          <input
-            type="text"
-            placeholder="Date"
-            class="view-party-textinput2 input"
-            v-model="partyData.date"
-          />
-          <textarea
-            placeholder="Description"
-            class="view-party-textarea textarea"
-            v-model="partyData.description"
-          ></textarea>
-          <textarea
-            placeholder="Members"
-            class="view-party-textarea1 textarea"
-          >
-            {{ partyData.members ? partyData.members.join(', ' ): ''}}
-          </textarea>
-          <button type="button" class="button" @click="updateParty">
+          <input type="text" placeholder="Name Party" class="view-party-textinput input" v-model="partyData.name" />
+          <input type="text" placeholder="Occasion" class="view-party-textinput1 input" v-model="partyData.occasion" />
+          <input type="text" placeholder="Date" class="view-party-textinput2 input" v-model="partyData.date" />
+          <textarea placeholder="Description" class="view-party-textarea textarea"
+            v-model="partyData.description"></textarea>
+          <div class="members-container">
+            <h2>Members</h2>
+            <div v-for="(member, index) in partyData.members" :key="index" class="member">
+              <span>{{ member }}</span>
+              <button type="button" @click="removeMember(index)" class="hover-animation">Delete</button>
+            </div>
+            <input type="text" placeholder="Add new member" v-model="newMember" />
+            <button type="button" @click="addMember" class="hover-animation">Add Member</button>
+          </div>
+          <button type="button" class="button hover-animation" @click="updateParty">
             <span>
               <span>Update</span>
               <br />
             </span>
           </button>
-          <button type="button" class="button">
+          <button type="button" class="button hover-animation">
             <span>
               <span>View Presents</span>
               <br />
             </span>
           </button>
-          <button type="button" class="button">
+          <button type="button" class="button hover-animation" @click="deleteParty">
             <span>
               <span>Delete</span>
               <br />
             </span>
           </button>
-          <button type="button" class="button">
+          <button type="button" class="button hover-animation">
             <span>
               <span>Go To Group Chat</span>
               <br />
             </span>
           </button>
-          <button type="button" class="button" @click="openFileInput">
+          <button type="button" class="button hover-animation" @click="openFileInput">
             <span>
               <span>Change Pic</span>
               <br />
             </span>
           </button>
-        </form>
-        <div>
-          <img
-            alt="image"
-            :src="imageSrc"
-            class="view-party-image"
-          />
+          <!-- Move the image here -->
+          <img alt="image" :src="imageSrc" class="view-party-image" />
           <input type="file" ref="fileInput" @change="handleFileChange" accept="image/*" style="display: none" />
-        </div>
+        </form>
       </div>
     </div>
   </div>
@@ -87,7 +67,8 @@ import AppHeader from '../components/header'
 import LeftCanvas from '../components/left-canvas'
 import RightCanvas from '../components/right-canvas'
 import axios from 'axios'
-import {Buffer} from 'buffer'
+import { Buffer } from 'buffer'
+import {mapState} from "vuex"
 
 export default {
   name: 'ViewPartyDetails',
@@ -107,30 +88,32 @@ export default {
         members: [],
         // Initialize image as a Blob object
         image: null
-      }
+      },
+      newMember: ''
     };
   },
   computed: {
-  imageSrc() {
-    console.log('IMAGESRC: ', this.partyData.image);
-    if (this.partyData.image && Array.isArray(this.partyData.image.data)) {
-      // Create a Uint8Array from the array of integers
-      const uint8Array = new Uint8Array(this.partyData.image.data);
-      
-      // Create a buffer from the Uint8Array
-      const buffer = Buffer.from(uint8Array);
-      
-      // Create a Blob from the buffer
-      const blob = new Blob([buffer], { type: 'image/jpeg' });
-      
-      // Create an object URL from the blob
-      return URL.createObjectURL(blob);
-    } else {
-      console.log('WE IN ELSE');
-      return ''; // Return empty string if image data is not available
+    ...mapState(['userId', 'accessToken']),
+    imageSrc() {
+      console.log('IMAGESRC: ', this.partyData.image);
+      if (this.partyData.image && Array.isArray(this.partyData.image.data)) {
+        // Create a Uint8Array from the array of integers
+        const uint8Array = new Uint8Array(this.partyData.image.data);
+
+        // Create a buffer from the Uint8Array
+        const buffer = Buffer.from(uint8Array);
+
+        // Create a Blob from the buffer
+        const blob = new Blob([buffer], { type: 'image/jpeg' });
+
+        // Create an object URL from the blob
+        return URL.createObjectURL(blob);
+      } else {
+        console.log('WE IN ELSE');
+        return ''; // Return empty string if image data is not available
+      }
     }
-  }
-},
+  },
 
   mounted() {
     this.partyid = this.$route.params.partyid;
@@ -154,31 +137,45 @@ export default {
       }
     },
 
-    openFileInput(){
+    openFileInput() {
       this.$refs.fileInput.click();
     },
     async handleFileChange(event) {
-  const file = event.target.files[0]; // Get the selected file
-  if (!file) return; // No file selected
+      const file = event.target.files[0]; // Get the selected file
+      if (!file) return; // No file selected
 
-  // Convert the selected file to binary data (ArrayBuffer)
-  const reader = new FileReader();
-  reader.onload = async () => {
-    const binaryData = reader.result; // Binary data (ArrayBuffer)
-    
-    // Send the binary data to the backend
-    try {
-      console.log('SENDING.. IMAGE');
-      await this.sendImageToBackend(binaryData);
-      console.log('Image uploaded successfully');
-      // Optionally, update the profile image on the frontend
-    } catch (error) {
-      console.error('Error uploading image:', error);
-      // Handle error
-    }
-  };
-  reader.readAsArrayBuffer(file); // Read the file as an ArrayBuffer
-},
+      // Convert the selected file to binary data (ArrayBuffer)
+      const reader = new FileReader();
+      reader.onload = async () => {
+        const binaryData = reader.result; // Binary data (ArrayBuffer)
+
+        // Send the binary data to the backend
+        try {
+          console.log('SENDING.. IMAGE');
+          await this.sendImageToBackend(binaryData);
+          console.log('Image uploaded successfully');
+          // Optionally, update the profile image on the frontend
+        } catch (error) {
+          console.error('Error uploading image:', error);
+          // Handle error
+        }
+      };
+      reader.readAsArrayBuffer(file); // Read the file as an ArrayBuffer
+    },
+
+    async deleteParty(){
+      try{
+        const data= {
+          partyid : this.partyid
+        }
+        console.log('partyid: ',this.partyid);
+
+        const res = await axios.delete( `http://localhost:3001/delete-party/${this.userId}`, data);
+        console.log(res);
+      }catch(error){
+        console.error('ERROR DELETING PARTY: ', error);
+      }
+    },
 
     async sendImageToBackend(binaryData) {
       try {
@@ -216,20 +213,30 @@ export default {
           occasion: this.partyData.occasion,
           date: this.partyData.date,
           description: this.partyData.description,
-        } 
-        const response = await axios.put(`http://localhost:3001/update-party/${this.partyid}`, data);
+          partyid : this.partyid,
+          users: this.partyData.members
+        }
+        console.log("DATA: ", data);
+        const response = await axios.put(`http://localhost:3001/update-party/${this.userId}`, data);
         console.log('Party updated successfully:', response.data);
         // Optionally, you can redirect or show a success message here
       } catch (error) {
         console.error('Error updating party:', error);
         // Handle error: show error message or redirect to error page
       }
-    }
-
+    },
+    addMember() {
+      if (this.newMember.trim() !== '') {
+        this.partyData.members.push(this.newMember.trim());
+        this.newMember = '';
+      }
+    },
+    removeMember(index) {
+      this.partyData.members.splice(index, 1);
+    },
   }
 }
 </script>
-
 
 <style scoped>
 .view-party-container {
@@ -280,7 +287,7 @@ export default {
   right: 0px;
   width: 98%;
   bottom: 56px;
-  height: 378px;
+  height: auto; /* Change height to auto for flexible height */
   margin: var(--dl-space-space-halfunit);
   display: flex;
   position: absolute;
@@ -288,30 +295,26 @@ export default {
   flex-direction: column;
   justify-content: flex-start;
 }
-.view-party-textinput {
-  width: 80%;
-}
-.view-party-textinput1 {
-  width: 80%;
-}
-.view-party-textinput2 {
-  width: 80%;
-}
+.view-party-textinput,
+.view-party-textinput1,
+.view-party-textinput2,
 .view-party-textarea {
   width: 80%;
-}
-.view-party-textarea1 {
-  width: 80%;
+  margin-bottom: 10px; /* Add margin bottom for spacing between elements */
 }
 .view-party-image {
   top: 102px;
   left: 0px;
   right: 0px;
   width: 80%;
-  height: 352px;
+  height: auto; /* Change height to auto for flexible height */
   margin: auto;
   position: absolute;
   object-fit: cover;
+}
+.hover-animation:hover {
+  transform: scale(1.1); /* Example hover animation: scale */
+  transition: transform 0.3s ease; /* Smooth transition effect */
 }
 @media(max-width: 1600px) {
   .view-party-main-canvas {
@@ -324,7 +327,7 @@ export default {
   }
   .view-party-image {
     width: 684px;
-    height: 355px;
+    height: auto; /* Change height to auto for flexible height */
   }
 }
 </style>

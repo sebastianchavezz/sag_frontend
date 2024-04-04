@@ -27,10 +27,11 @@
       <input type="password" placeholder="placeholder" class="input" v-model="confirmPassword" />
       <code class="register-text6">Tel</code>
       <input type="text" placeholder="placeholder" class="input" v-model="tel" />
-      <button @click.prevent="register">Register</button>
+      <button @click.prevent="register" class="register-button">Register</button>
     </form>
   </div>
 </template>
+
 
 <script>
 import axios from 'axios';
@@ -159,5 +160,20 @@ export default {
 .register-text6 {
   padding-top: var(--dl-space-space-unit);
   padding-bottom: var(--dl-space-space-unit);
+}
+.register-button {
+  cursor: pointer;
+  background-color: blue;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 12px 24px; /* Adjust padding as needed */
+  margin-top: 16px; /* Added margin top for spacing */
+  font-size: 16px;
+  transition: background-color 0.3s;
+}
+
+.register-button:hover {
+  background-color: darkblue;
 }
 </style>

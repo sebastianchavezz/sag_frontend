@@ -271,4 +271,19 @@ export default {
     width: 100%;
   }
 }
+/* Modern Button Styling */
+.button {
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 16px;
+  background-color: #4CAF50; /* Green */
+  color: white;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.button:hover {
+  background-color: #45a049;
+}
 </style>

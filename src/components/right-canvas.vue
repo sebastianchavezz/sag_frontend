@@ -2,10 +2,12 @@
   <div class="right-canvas-right-canvas" v-bind:class="rootClassName">
     <h3 class="right-canvas-text">{{ heading }}</h3>
     
-    <div v-for="(request, index) in friendshipRequests" :key="index">
+    <div v-for="(request, index) in friendshipRequests" :key="index" class="friend-request">
       <p>{{ request.username }}</p>
-      <button @click="acceptFriendRequest(request.id, index)">Accept</button>
-      <button @click="declineFriendRequest(request.id, index)">Decline</button>
+      <div class="button-container">
+        <button @click="acceptFriendRequest(request.id, index)" class="accept-button">Accept</button>
+        <button @click="declineFriendRequest(request.id, index)" class="decline-button">Decline</button>
+      </div>
     </div>
   </div>
 </template>
@@ -78,8 +80,46 @@ export default {
 }
 </script>
 
-
 <style scoped>
+.right-canvas-right-canvas {
+  width: 20%;
+  margin: var(--dl-space-space-unit);
+  display: flex;
+  position: relative;
+  align-self: flex-end;
+  align-items: flex-start;
+  padding: var(--dl-space-space-unit);
+  flex-direction: column;
+}
+.right-canvas-text {
+  align-self: flex-start;
+  margin-top: var(--dl-space-space-unit);
+}
+.friend-request {
+  margin-bottom: 20px;
+}
+.button-container {
+  display: flex;
+}
+.accept-button, .decline-button {
+  cursor: pointer;
+  background-color: #4CAF50; /* Green */
+  border: none;
+  color: white;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  transition-duration: 0.4s;
+  cursor: pointer;
+  border-radius: 12px;
+}
+
+.accept-button:hover, .decline-button:hover {
+  background-color: #45a049;
+}
+
 .right-canvas-right-canvas {
   width: 20%;
   height: 815px;
