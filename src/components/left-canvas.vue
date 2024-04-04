@@ -46,28 +46,28 @@
       </div>
     </div>
     <div class="left-canvas-container5">
-      <h3 class="left-canvas-text06">
-        <span>Friends</span>
-        <br />
-      </h3>
-      <app-messenger1 rootClassName="messenger1-root-class-name"></app-messenger1>
-      <div class="left-canvas-messenger4">
-        <div class="left-canvas-profile4">
-          <div class="left-canvas-container6"></div>
+    <h3 class="left-canvas-text06">
+      <span>Friends</span>
+      <br />
+    </h3>
+    <app-messenger1 rootClassName="messenger1-root-class-name"></app-messenger1>
+    <div class="left-canvas-messenger4">
+      <div class="left-canvas-profile4">
+        <div class="left-canvas-container6">
+          <!-- Loop through friends and display usernames as clickable links -->
+          <div v-for="friend in friends" :key="friend.id">
+            <a @click="visitUserProfile(friend.id)" class="username-link">{{ friend.username }}</a>
+          </div>
         </div>
-        <img :alt="imageAlt" :src="imageSrc" class="left-canvas-image" />
-        <span class="left-canvas-text09">
-          <span>Halloween</span>
-          <br />
-          <br />
-        </span>
       </div>
     </div>
+  </div>
   </div>
 </template>
 
 <script>
-import AppMessenger1 from './messenger1'
+import axios from 'axios';
+import { mapState } from 'vuex';
 
 export default {
   name: 'LeftCanvas',
@@ -98,10 +98,35 @@ export default {
       default: 'Messages',
     }
   },
-  components: {
-    AppMessenger1,
+  created(){
+    this.fetchFriends();
   },
+
+  data() {
+    return{
+      friends : []
+    }
+  },
+  computed: {
+    ...mapState(['userId', 'accessToken', 'name', 'lastname']),
+  },  
+
   methods:{
+    visitUserProfile(userid) {
+      // Navigate to the user's profile page using the userid
+      this.$router.push({name: 'UserProfile', params: {other_userid: userid}});
+    },
+    async fetchFriends(){
+      try{
+        const response = await axios.get(`http://localhost:3001/all-friends/${this.userId}`);
+        this.friends = response.data.map(user => ({
+          id: user.id,
+          username: user.username,
+        }));
+      }catch(error){
+
+      }
+    },
     r_toHome(){
       if(this.$route.path != '/home'){
         this.$router.push('/home');

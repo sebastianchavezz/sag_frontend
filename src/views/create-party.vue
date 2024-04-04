@@ -10,15 +10,23 @@
           <input type="text" v-model="partyName" placeholder="Name Party" class="create-party-textinput input" />
           <input type="text" v-model="occasion" placeholder="occasion" class="create-party-textinput1 input" />
           <input type="date" v-model="date" placeholder="date" class="create-party-textinput2 input" />
-          <textarea placeholder="Description" class="create-party-textarea textarea"></textarea>
+          <input type="text" v-model="description" placeholder="description" class="create-party-textinput2 input" />
           <div v-for="(member, index) in members" :key="index">
-            <input type="text" v-model="member.identifier" :placeholder="member.type === 'email' ? 'Friend\'s Email' : 'Friend\'s Username'" class="create-party-textinput input" />
+            <input type="text" v-model="member.identifier" :placeholder="member.type === 'email' ? 'Friend\'s Email' : 'Friend\'s Username'" class="create-party-textinput input" @input="filterFriends(member)" />
             <button type="button" @click="removeMember(index)" class="button">Remove</button>
+            <!-- Display filtered friends -->
+            <div v-if="member.filteredFriends.length > 0">
+              <ul>
+                <li v-for="(friend, idx) in member.filteredFriends" :key="idx" @click="selectFriend(friend, index)">
+                  {{ friend.username }}
+                </li>
+              </ul>
+            </div>
           </div>
           <div>
-         <input type="file" ref="fileInput" @change="handleFileChange" accept="image/*" />
-          <button type="button" @click="openFileInput">Select Image</button>
-        </div>
+            <input type="file" ref="fileInput" @change="handleFileChange" accept="image/*" />
+            <button type="button" @click="openFileInput">Select Image</button>
+          </div>
           <select v-model="inputType" class="input-type-select">
             <option value="email">Email</option>
             <option value="username">Username</option>
@@ -27,11 +35,7 @@
           <button type="submit" class="button">Plan a Party</button>
         </form>
         <div>
-        <img
-            alt="image"
-            :src="profileImageData"
-            class="create-party-image"
-        />
+          <img alt="image" :src="profileImageData" class="create-party-image" />
         </div>
       </div>
     </div>
@@ -40,50 +44,64 @@
 
 <script>
 import axios from 'axios';
-import { getCurrentUserId, userIsLoggedIn } from '@/auth/auth';
-import AppHeader from '../components/header'
-import LeftCanvas from '../components/left-canvas'
-import RightCanvas from '../components/right-canvas'
 import { mapState } from 'vuex';
+import AppHeader from '../components/header';
+import LeftCanvas from '../components/left-canvas';
+import RightCanvas from '../components/right-canvas';
 
 export default {
   name: 'CreateParty',
-  props: {},
   components: {
     AppHeader,
     LeftCanvas,
     RightCanvas,
   },
-  computed: {
-    ...mapState(['userId', 'accessToken', 'name']),
-  },
   data() {
     return {
-      partyName: "",
-      occasion: "",
+      partyName: '',
+      occasion: '',
       date: null,
+      description: '',
       inputType: 'email', // Default input type
-      members: [{ identifier: "", type: 'email' }], // Default member type
-      profileImageData : ''
+      members: [{ identifier: '', type: 'email', filteredFriends: [] }], // Default member type with filtered friends array
+      profileImageData: '',
+      friends: [], // Array to store user's friends
     };
   },
+  computed: {
+    ...mapState(['userId', 'accessToken']),
+  },
+  created() {
+    this.fetchFriends(); // Fetch user's friends when the component is created
+  },
   methods: {
+    async fetchFriends() {
+      try {
+        const response = await axios.get(`http://localhost:3001/all-friends/${this.userId}`, {
+          headers: {
+            Authorization: `Bearer ${this.accessToken}`,
+          },
+        });
+        this.friends = response.data; // Store the user's friends
+      } catch (error) {
+        console.error('Error fetching friends:', error);
+      }
+    },
     openFileInput() {
       this.$refs.fileInput.click(); // Trigger the file input click event
     },
-    async handleFileChange(event) {
+    handleFileChange(event) {
       const file = event.target.files[0]; // Get the selected file
       if (!file) return; // No file selected
       const reader = new FileReader();
-      reader.onload = async () => {
-      // Convert the selected file to a Blob object
-        this.profileImageData= new Blob([file], { type: "image/jpeg" });
-        
+      reader.onload = () => {
+        // Convert the selected file to a Blob object
+        this.profileImageData = new Blob([file], { type: 'image/jpeg' });
       };
       // Set the profileImageData property to the Blob object
       reader.readAsArrayBuffer(file);
     },
-    async submitForm() { 
+    async submitForm() {
       try {
         if (!this.accessToken) {
           this.$router.push('/login');
@@ -96,6 +114,8 @@ export default {
         formData.append('name', this.partyName);
         formData.append('occasion', this.occasion);
         formData.append('date', this.date);
+        formData.append('description', this.description);
+        formData.append('creator', this.userId);
         formData.append('image', this.profileImageData); // Append the Blob
 
         // Append member data
@@ -113,29 +133,37 @@ export default {
         });
 
         console.log('Party added successfully:', response.data);
-        //this.$emit('party-added', response.data);
       } catch (error) {
         console.error('Error adding party:', error.message);
-        // Handle error
       }
 
       // Clear the form fields after submission
-      this.partyName = "";
-      this.occasion = "";
-      this.partyName = "";
+      this.partyName = '';
+      this.occasion = '';
+      this.partyName = '';
       this.date = null;
-      this.members = [{ identifier: "", type: this.inputType }];
+      this.members = [{ identifier: '', type: this.inputType, filteredFriends: [] }];
     },
     addMember() {
-      this.members.push({ identifier: "", type: this.inputType });
+      this.members.push({ identifier: '', type: this.inputType, filteredFriends: [] });
     },
     removeMember(index) {
       this.members.splice(index, 1);
     },
-
+    filterFriends(member) {
+      const searchTerm = member.identifier.toLowerCase();
+      member.filteredFriends = this.friends.filter(friend =>
+        friend.username.toLowerCase().includes(searchTerm)
+      );
+    },
+    selectFriend(friend, memberIndex) {
+      this.members[memberIndex].identifier = friend.username;
+      this.members[memberIndex].filteredFriends = []; // Clear filtered friends after selection
+    },
   },
 };
 </script>
+
 
 <style scoped>
 .create-party-container {
