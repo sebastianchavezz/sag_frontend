@@ -8,44 +8,16 @@
         <div class="add-user-to-party-container2">
           <h1 class="add-user-to-party-text">Add &quot;User&quot; to Party</h1>
         </div>
-        <div class="add-user-to-party-container3">
-          <textarea
-            placeholder="Name Party"
-            class="add-user-to-party-textarea textarea"
-          ></textarea>
-          <button type="button" class="add-user-to-party-button button">
-            <span>
-              <span>Add</span>
-              <br />
-            </span>
-          </button>
-        </div>
-        <div class="add-user-to-party-container4">
-          <textarea
-            placeholder="Name Party"
-            class="add-user-to-party-textarea1 textarea"
-          ></textarea>
-          <button type="button" class="add-user-to-party-button1 button">
-            <span>
-              <span>Add</span>
-              <br />
-            </span>
-          </button>
-        </div>
-        <div class="add-user-to-party-container5">
-          <textarea
-            placeholder="Name Party"
-            class="add-user-to-party-textarea2 textarea"
-          ></textarea>
-          <button type="button" class="add-user-to-party-button2 button">
-            <span>
-              <span>Add</span>
-              <br />
-            </span>
+        <div v-for="(party, index) in parties" :key="index" class="add-user-to-party-party">
+          <div class="party-name">{{ party.name }}</div>
+          <button type="button" class="add-user-to-party-button button" @click="addToParty(party)">
+            <span>Add to Party</span>
           </button>
         </div>
       </div>
     </div>
+    <div v-if="responseMessage" class="notification">{{ responseMessage }}</div>
+
   </div>
 </template>
 
@@ -53,6 +25,8 @@
 import AppHeader from '../components/header'
 import LeftCanvas from '../components/left-canvas'
 import RightCanvas from '../components/right-canvas'
+import { mapState } from 'vuex'
+import axios from "axios"
 
 export default {
   name: 'AddUserToParty',
@@ -62,15 +36,45 @@ export default {
     LeftCanvas,
     RightCanvas,
   },
-  metaInfo: {
-    title: 'AddUserToParty - Respectful Winged Tarsier',
-    meta: [
-      {
-        property: 'og:title',
-        content: 'AddUserToParty - Respectful Winged Tarsier',
-      },
-    ],
+  data(){
+    return{
+      parties: [],
+      responseMessage: ''
+    }
   },
+  computed:{
+    ...mapState(['userId','accessToken','name', 'lastname']),
+  },
+  mounted() {
+    this.other_userid = this.$route.params.other_userid;
+    this.fetchPartyData();
+  },
+  methods:{
+    async fetchPartyData() {
+      try {
+        const response = await axios.get(`http://localhost:3001/getParty-by-user/${this.userId}`);
+        this.parties = response.data;
+        console.log('parties: ', this.parties);
+
+      } catch (error) {
+        console.error('Error fetching party data:', error);
+      }
+    },
+    async addToParty(party) {
+      try {
+        // Implement your logic for adding user to the party here
+        const data = {
+          partyid : party.partyid,
+          other_userid: this.other_userid,
+        };
+        await axios.post(`http://localhost:3001/add-user-to-party/${this.userId}`, data);
+        this.responseMessage = "Player added succesfully";
+        console.log('data: ',data);
+      } catch (error) {
+        console.error('Error adding user to party:', error);
+      }
+    }
+  }
 }
 </script>
 
@@ -85,7 +89,7 @@ export default {
 }
 .add-user-to-party-main-canvas {
   flex: 1;
-  width: 1600px;
+  width: 100%;
   height: 100%;
   display: flex;
   position: relative;
@@ -119,67 +123,54 @@ export default {
   width: 100%;
   align-self: center;
   text-align: center;
+  margin-bottom: 20px;
 }
-.add-user-to-party-container3 {
-  flex: 0 0 auto;
+.add-user-to-party-party {
   width: 100%;
-  height: 100px;
   display: flex;
-  position: relative;
-  align-self: center;
   align-items: center;
-  flex-direction: row;
-  justify-content: flex-start;
+  justify-content: space-between;
+  margin-bottom: 20px;
 }
-.add-user-to-party-textarea {
-  width: 90%;
-  height: 100%;
+.party-name {
+  font-size: 18px;
+  font-weight: bold;
 }
 .add-user-to-party-button {
-  width: 10%;
-  height: 100%;
+  width: 150px;
+  height: 40px;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
 }
-.add-user-to-party-container4 {
-  flex: 0 0 auto;
-  width: 100%;
-  height: 100px;
-  display: flex;
-  position: relative;
-  align-self: center;
-  align-items: center;
-  flex-direction: row;
-  justify-content: flex-start;
+.add-user-to-party-button:hover {
+  background-color: #0056b3;
 }
-.add-user-to-party-textarea1 {
-  width: 90%;
-  height: 100%;
+
+.notification {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #4caf50;
+  color: #fff;
+  padding: 16px;
+  border-radius: 8px;
+  z-index: 1000;
+  animation: fadeOut 3s ease; /* Animation to fade out after 3 seconds */
 }
-.add-user-to-party-button1 {
-  width: 10%;
-  height: 100%;
-}
-.add-user-to-party-container5 {
-  flex: 0 0 auto;
-  width: 100%;
-  height: 100px;
-  display: flex;
-  position: relative;
-  align-self: center;
-  align-items: center;
-  flex-direction: row;
-  justify-content: flex-start;
-}
-.add-user-to-party-textarea2 {
-  width: 90%;
-  height: 100%;
-}
-.add-user-to-party-button2 {
-  width: 10%;
-  height: 100%;
-}
-@media(max-width: 1600px) {
-  .add-user-to-party-main-canvas {
-    width: 100%;
+
+@keyframes fadeOut {
+  0% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
   }
 }
 </style>

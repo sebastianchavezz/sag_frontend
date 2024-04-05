@@ -58,7 +58,6 @@ export default {
 }
 </script>
 
-
 <style scoped>
 .party-container {
   width: 100%;
@@ -102,7 +101,7 @@ export default {
   text-decoration: none;
   display: inline-block;
   font-size: 16px;
-  margin: 4px 2px;
+  margin: 20px 2px 4px 2px; /* Added margin-top */
   cursor: pointer;
   border-radius: 5px;
 }

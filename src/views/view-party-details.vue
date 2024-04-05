@@ -7,6 +7,7 @@
       <div class="view-party-container1">
         <div class="view-party-container2">
           <h1>Party: {{ partyData.name }}</h1>
+          <h1>Created by: {{ partyData.creator }}</h1>
         </div>
         <form class="view-party-form">
           <input type="text" placeholder="Name Party" class="view-party-textinput input" v-model="partyData.name" />
@@ -59,6 +60,8 @@
         </form>
       </div>
     </div>
+     <div v-if="responseMessage" class="notification">{{ responseMessage }}</div>
+
   </div>
 </template>
 
@@ -87,9 +90,11 @@ export default {
         description: '',
         members: [],
         // Initialize image as a Blob object
-        image: null
+        image: null,
+        creator: ''
       },
-      newMember: ''
+      newMember: '',
+      responseMessage: ''
     };
   },
   computed: {
@@ -129,7 +134,8 @@ export default {
           date: response.data.date,
           description: response.data.description,
           members: response.data.members,
-          image: response.data.image
+          image: response.data.image,
+          creator: response.data.creator
         };
         console.log('image: ', this.partyData.image);
       } catch (error) {
@@ -165,12 +171,13 @@ export default {
 
     async deleteParty(){
       try{
-        const data= {
+        const formData= {
           partyid : this.partyid
         }
         console.log('partyid: ',this.partyid);
+        console.log('FORM DATA: ',formData);
 
-        const res = await axios.delete( `http://localhost:3001/delete-party/${this.userId}`, data);
+        const res = await axios.delete(`http://localhost:3001/delete-party/${this.userId}`, {data:{partyid: this.partyid}});
         console.log(res);
       }catch(error){
         console.error('ERROR DELETING PARTY: ', error);
@@ -220,6 +227,7 @@ export default {
         const response = await axios.put(`http://localhost:3001/update-party/${this.userId}`, data);
         console.log('Party updated successfully:', response.data);
         // Optionally, you can redirect or show a success message here
+        this.responseMessage = "Party Updated Succesfully";
       } catch (error) {
         console.error('Error updating party:', error);
         // Handle error: show error message or redirect to error page
@@ -315,6 +323,68 @@ export default {
 .hover-animation:hover {
   transform: scale(1.1); /* Example hover animation: scale */
   transition: transform 0.3s ease; /* Smooth transition effect */
+}
+
+.button {
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  padding: 12px 24px; /* Increase padding for a more spacious look */
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 18px; /* Increase font size for better readability */
+  margin: 8px; /* Increase margin for better spacing between buttons */
+  cursor: pointer;
+  border-radius: 25px; /* Use a higher border-radius for rounded buttons */
+  outline: none; /* Remove default outline on focus */
+  transition: background-color 0.3s ease; /* Add transition for smoother hover effect */
+}
+
+.button:hover {
+  background-color: #45a049; /* Darker shade of green on hover */
+}
+
+/* Additional hover effect to give a subtle lift effect */
+.button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Optional: Add a disabled style for disabled buttons */
+.button:disabled {
+  opacity: 0.5; /* Reduce opacity for disabled buttons */
+  cursor: not-allowed; /* Change cursor to not-allowed for disabled buttons */
+}
+
+/* Additional styling for hover-animation class */
+.hover-animation:hover {
+  transform: scale(1.1); /* Scale effect on hover */
+}
+
+.notification {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #4caf50;
+  color: #fff;
+  padding: 16px;
+  border-radius: 8px;
+  z-index: 1000;
+  animation: fadeOut 3s ease; /* Animation to fade out after 3 seconds */
+}
+
+@keyframes fadeOut {
+  0% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
 }
 @media(max-width: 1600px) {
   .view-party-main-canvas {

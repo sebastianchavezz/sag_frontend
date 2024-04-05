@@ -39,6 +39,7 @@
         </div>
       </div>
     </div>
+    <div v-if="responseMessage" class="notification">{{ responseMessage }}</div>
   </div>
 </template>
 
@@ -66,6 +67,7 @@ export default {
       members: [{ identifier: '', type: 'username', filteredFriends: [] }], // Default member type with filtered friends array
       profileImageData: '',
       friends: [], // Array to store user's friends
+      responseMessage: ''
     };
   },
   computed: {
@@ -77,11 +79,7 @@ export default {
   methods: {
     async fetchFriends() {
       try {
-        const response = await axios.get(`http://localhost:3001/all-friends/${this.userId}`, {
-          headers: {
-            Authorization: `Bearer ${this.accessToken}`,
-          },
-        });
+        const response = await axios.get(`http://localhost:3001/all-friends/${this.userId}`);
         this.friends = response.data; // Store the user's friends
       } catch (error) {
         console.error('Error fetching friends:', error);
@@ -127,11 +125,10 @@ export default {
         // Send the form data to the backend
         const response = await axios.post('http://localhost:3001/add-party', formData, {
           headers: {
-            Authorization: `Bearer ${this.accessToken}`,
             'Content-Type': 'multipart/form-data', // Set content type as multipart/form-data
           },
         });
-
+        this.responseMessage = "Party Created Succesfully";
         console.log('Party added successfully:', response.data);
       } catch (error) {
         console.error('Error adding party:', error.message);
@@ -257,7 +254,83 @@ export default {
   cursor: pointer;
   border-radius: 5px;
 }
+.button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  cursor: pointer;
+  border-radius: 5px;
+  transition: background-color 0.3s ease; /* Add transition for smoother hover effect */
+}
+
 .button:hover {
   background-color: #0056b3;
+}
+
+/* New styles for modern buttons */
+.button {
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  padding: 12px 24px; /* Increase padding for a more spacious look */
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 18px; /* Increase font size for better readability */
+  margin: 8px; /* Increase margin for better spacing between buttons */
+  cursor: pointer;
+  border-radius: 25px; /* Use a higher border-radius for rounded buttons */
+  outline: none; /* Remove default outline on focus */
+  transition: background-color 0.3s ease; /* Add transition for smoother hover effect */
+}
+
+.button:hover {
+  background-color: #45a049; /* Darker shade of green on hover */
+}
+
+/* Additional hover effect to give a subtle lift effect */
+.button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Optional: Add a disabled style for disabled buttons */
+.button:disabled {
+  opacity: 0.5; /* Reduce opacity for disabled buttons */
+  cursor: not-allowed; /* Change cursor to not-allowed for disabled buttons */
+}
+
+.button:hover {
+  background-color: #0056b3;
+}
+.notification {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #4caf50;
+  color: #fff;
+  padding: 16px;
+  border-radius: 8px;
+  z-index: 1000;
+  animation: fadeOut 3s ease; /* Animation to fade out after 3 seconds */
+}
+
+@keyframes fadeOut {
+  0% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
 }
 </style>

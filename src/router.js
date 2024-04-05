@@ -129,7 +129,6 @@ const router = new Router({
     },
   ],
 });
-
  router.beforeEach(async (to, from, next) => {
   if (
     // Make sure the user is authenticated
@@ -143,5 +142,5 @@ const router = new Router({
     // Continue navigation
     next();
   }
-}); 
+});
 export default router;

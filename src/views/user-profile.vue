@@ -9,7 +9,7 @@
         <div class="profile-container2">
           <button type="button" @click="sendFriendRequest" class="button add-friend">Add Friend</button>
           <button type="button" class="button message">Message</button>
-          <button type="button" class="button add-party">Add To Party</button>
+          <button type="button" @click="goToParties" class="button add-party">Add To Party</button>
         </div>
         <div class="profile-product-placement">
           <img
@@ -39,6 +39,7 @@
       <left-canvas rootClassName="left-canvas-root-class-name10"></left-canvas>
       <right-canvas rootClassName="right-canvas-root-class-name10"></right-canvas>
     </div>
+    <div v-if="responseMessage" class="notification">{{ responseMessage }}</div>
   </div>
 </template>
 
@@ -64,7 +65,8 @@ export default {
       other_userid: null,
       name: '',
       profileImageData: '',
-      user: {} // Initialize user object to store user data
+      user: {}, // Initialize user object to store user data
+      responseMessage: ''
     };
   },
   mounted() {
@@ -76,6 +78,9 @@ export default {
     ...mapState(['userId', 'accessToken', 'name', 'lastname']),
   },
   methods: {
+    goToParties(){
+      this.$router.push({name: "AddUserToParty", params:{other_userid: this.other_userid}});
+    },
     async sendFriendRequest(){
       try{
         const data = {
@@ -84,6 +89,7 @@ export default {
         console.log('USERID: ', this.userId)
         await axios.post(`http://localhost:3001/request-friendship/${this.userId}`, data);
         console.log('REQUEST SENT');
+        this.responseMessage = "Request Send!";
       }catch(error){
         console.error('Error sending request: ', error);
       }
@@ -245,6 +251,30 @@ export default {
 .add-party {
   border-color: #ff5722;
   color: #ff5722;
+}
+.notification {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #4caf50;
+  color: #fff;
+  padding: 16px;
+  border-radius: 8px;
+  z-index: 1000;
+  animation: fadeOut 3s ease; /* Animation to fade out after 3 seconds */
+}
+
+@keyframes fadeOut {
+  0% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
 }
 
 </style>
